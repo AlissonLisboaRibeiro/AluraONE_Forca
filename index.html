@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>Challenge Oracle ONE - Lógica de Programação Semana 3 e 4 - Forca</title>
+		<link rel="stylesheet" href="reset.css">
+		<link rel="stylesheet" href="style.css">
+		<link href="https://fonts.googleapis.com/css2?family=Roboto+Slab&display=swap" rel="stylesheet">
+	</head>
+	<body>
+		<header>
+			<div class="caixa-titulo">
+				<h1>Challenge Oracle ONE - Lógica de Programação Semana 3 e 4</h1>
+			</div>
+		</header>
+
+		<main>
+			
+			<div id="pagina-inicial" class="caixaInicial">
+				<input type="button" id="btn-comecar" value="Começar a jogar" class="botao"><p></p>
+				<input type="button" id="btn-cadastrar" value="Cadastrar palavra" class="botao">
+			</div>
+			
+			<div id="pagina-inicial-cadastro" class="caixaCadastroPalavra">
+				<label for="txt_PalavraCadastro">Informe a palavra <input type="text" id="txt_PalavraCadastro" value="" placeholder="Informe uma palavra de até 8 caracteres" maxlength="8" class="cadastro"></label>
+				<input type="button" id="btn-cadastrar-palavra" value="Cadastrar palavra">
+				<p></p>
+				<input type="button" id="btn-cancelar-cadastro" value="Cancelar">
+			</div>
+			
+			<div id="pagina-inicial-forca" class="caixaForca">
+				<div class="caixaDesenho">
+					<canvas id="canvas-forca" class="canvas-forca" width="300" height="500"></canvas>
+				<div class="caixaPalpitesErrados">
+					<textarea id="txt_palpites_errados" cols="4" class="palpitesErrados"></textarea>
+				</div>
+				<div class="caixaLetraCerta">
+					<input type="text" id="txt_LetraCerta1" value="" class="letracerta" maxlength="1">
+					<input type="text" id="txt_LetraCerta2" value="" class="letracerta" maxlength="1">
+					<input type="text" id="txt_LetraCerta3" value="" class="letracerta" maxlength="1">
+					<input type="text" id="txt_LetraCerta4" value="" class="letracerta" maxlength="1">
+					<input type="text" id="txt_LetraCerta5" value="" class="letracerta" maxlength="1">
+					<input type="text" id="txt_LetraCerta6" value="" class="letracerta" maxlength="1">
+					<input type="text" id="txt_LetraCerta7" value="" class="letracerta" maxlength="1">
+					<input type="text" id="txt_LetraCerta8" value="" class="letracerta" maxlength="1">
+				</div>
+				</div>
+				<p></p>
+				<label for="txt_Palpite">Informe o palpite <input type="text" id="txt_Palpite" value=""  maxlength="1" class="palpite"></label>
+				<input type="button" id="btn-novo-palpite" value="Novo palpite">
+				<p></p>
+				<input type="button" id="btn-novo-jogo" value="Novo jogo">
+				<p></p>
+				<input type="button" id="btn-cancelar" value="Cancelar">
+			</div>
+
+		</main>
+
+		<footer>
+			<p class="copyright">&copy; Copyright Alisson Lisboa Ribeiro - 2022</p>
+		</footer>
+	</body>
+	<script type="text/javascript">
+		var canvas = document.getElementById('canvas-forca');
+		var ctx = canvas.getContext('2d');
+
+		var palavraEscolhida;
+		var contaLetrasErradas = 0;
+		var palavras = [];
+		var num_palpites_errados = 0;
+		var num_palpites_certos = 0;
+
+		palavras.push("MUNDO");
+		palavras.push("TAPETE");
+		palavras.push("COMPUTAD");
+		palavras.push("CARRO");
+		palavras.push("LAMPADA");
+		palavras.push("AXIOMA");
+		palavras.push("AZULEJO");
+		palavras.push("BLITZ");
+		palavras.push("CATARRO");
+		palavras.push("COCAR");
+		palavras.push("CRESPO");
+		palavras.push("CRIPTA");
+		palavras.push("DUPLEX");
+		palavras.push("FUCSIA");
+		palavras.push("GIRAR");
+		palavras.push("GNOSTICO");
+		palavras.push("HAICAI");
+		palavras.push("HERA");
+		palavras.push("HIFEN");
+		palavras.push("ICTERICI");
+		palavras.push("INDIGNO");
+		palavras.push("INTRIGAN");
+		palavras.push("JAZZ");
+		palavras.push("LINFA");
+		palavras.push("MARFIM");
+		palavras.push("ONIX");
+		palavras.push("PSIQUE");
+		palavras.push("QUARTZO");
+		palavras.push("QUIZ");
+		palavras.push("QUORUM");
+		palavras.push("TONTO");
+		palavras.push("TOPAZIO");
+		palavras.push("TORPOR");
+		palavras.push("VALSA");
+		palavras.push("VAPORIZA");
+		palavras.push("VERTIGIN");
+		palavras.push("VICISSIT");
+		palavras.push("VORTICE");
+		palavras.push("XILOFONE");
+
+		function cadastraPalavra(){
+			var palavra = document.getElementById('txt_PalavraCadastro').value;
+			if (palavra != ''){
+				qtde = 	palavras.length;
+				palavras.push(palavra.toUpperCase());
+				alert('Palavra cadastrada com sucesso. Antes existiam '
+						+ qtde 
+						+ ' e agora são ' 
+						+ palavras.length);
+			}
+
+			document.getElementById('txt_PalavraCadastro').value = ''; //Limpa campo
+			
+		}
+
+		function desenhaTabuleiro(){
+			limpaCanvas();
+			desenhaBase();
+			geraPalavra();
+			for (var i = 1; i <= 8; i++){
+				if (i <= palavraEscolhida.length) {
+					document.getElementById('txt_LetraCerta' + i).style.display = 'inline';
+				} else {
+					document.getElementById('txt_LetraCerta' + i).style.display = 'none'; }
+					document.getElementById('txt_LetraCerta' + i).value = '';
+			}
+			document.getElementById('txt_Palpite').value = '';
+			document.getElementById('txt_palpites_errados').value = '';
+			document.getElementById('btn-novo-palpite').disabled = '';
+			document.getElementById('txt_Palpite').focus();
+			num_palpites_errados = 0;
+			num_palpites_certos = 0;
+		}
+
+		function geraPalavra(){
+			var fim = true;
+			var posicao = 0;
+		
+			while(fim && palavras.length > 0) {
+				posicao = Math.round(Math.random(palavras.length)*100);
+				if (posicao >= 0 && posicao < palavras.length){
+					fim = false;
+				}
+			}
+			//Configura a palavra escolhida
+			palavraEscolhida = palavras[posicao];
+		}
+
+		function limpaCanvas(){
+			ctx.clearRect(0, 0, canvas.width, canvas.height);
+		}
+
+		function desenhaBase(){
+			
+			//Base triangular
+			ctx.fillStyle='black';
+
+		    ctx.beginPath();
+		    ctx.moveTo(20,400);
+		    ctx.lineTo(220,400);
+		    ctx.lineTo(130,390);
+		    ctx.fill();
+		    //Mastro
+			ctx.fillRect(120, 95, 10, 300); //Parte Vertical
+			ctx.fillRect(125, 95, 80, 10); //Parte Horizontal
+			ctx.fillRect(205, 95, 10, 30); //Parte Vertical
+		}
+		
+		function desenhaCabeca(){
+			//Cabeça
+			var circle = new Path2D();
+			ctx.fillStyle = 'black';
+    		circle.arc(210, 155, 30, 0, Math.PI * 2, true); // Círculo exterior
+    		ctx.fill(circle);
+
+    		var circle = new Path2D();
+    		ctx.fillStyle = 'white';
+    		circle.arc(210, 155, 20, 0, Math.PI * 2, true); // Círculo interior
+    		ctx.fill(circle);
+    	}
+
+    	function desenhaAbdome(){
+    		var circle = new Path2D();
+			// Abdome
+			ctx.fillStyle = 'black';
+			ctx.fillRect(205, 185, 10, 100); //Parte Vertical
+		}
+
+		function desenhaBracoDireito(){
+			//Braços
+			ctx.fillStyle = 'black'; 
+
+			//Braço direito
+		    ctx.beginPath();
+		    var x = 205;
+		    var y = 210;
+		    ctx.moveTo(x,y);
+		    ctx.lineTo(x-25,y+10);
+		    ctx.lineTo(x-20,y+20);
+		    ctx.lineTo(x,y+10);
+		    ctx.fill();
+		}
+
+		function desenhaBracoEsquerdo(){
+			ctx.fillStyle = 'black'; 
+			//Braço esquerdo
+		    ctx.beginPath();
+		    x = 215;
+		    y = 210;
+		    ctx.moveTo(x,y);
+		    ctx.lineTo(x+25,y+10);
+		    ctx.lineTo(x+20,y+20);
+		    ctx.lineTo(x,y+10);
+		    ctx.fill();
+		}
+
+		function desenhaPernaDireita(){
+			ctx.fillStyle = 'black';
+			//Perna direita
+		    ctx.beginPath();
+		    x = 205;
+		    y = 275;
+		    ctx.moveTo(x,y);
+		    ctx.lineTo(x-35,y+10);
+		    ctx.lineTo(x-30,y+20);
+		    ctx.lineTo(x,y+10);
+		    ctx.fill();
+		}
+
+		function desenhaPernaEsquerda(){
+			ctx.fillStyle = 'black';
+			//Perna esquerda
+		    ctx.beginPath();
+		    x = 215;
+		    y = 275;
+		    ctx.moveTo(x,y);
+		    ctx.lineTo(x+35,y+10);
+		    ctx.lineTo(x+30,y+20);
+		    ctx.lineTo(x,y+10);
+		    ctx.fill();
+		}
+
+		function desenhaMorreu(){
+		    //X nos olhos
+		    ctx.beginPath(); //primeiro x olho direito
+		    ctx.moveTo(200,145);
+		    ctx.lineTo(205,150);
+		    ctx.closePath();
+		    ctx.stroke();
+
+		    ctx.beginPath(); //segundo x olho direito
+		    ctx.moveTo(205,145);
+		    ctx.lineTo(200,150);
+		    ctx.closePath();
+		    ctx.stroke();
+
+		    ctx.beginPath(); //primeiro x olho esquerdo
+		    ctx.moveTo(215,145);
+		    ctx.lineTo(220,150);
+		    ctx.closePath();
+		    ctx.stroke();
+
+		    ctx.beginPath(); //segundo x olho esquerdo
+		    ctx.moveTo(220,145);
+		    ctx.lineTo(215,150);
+		    ctx.closePath();
+		    ctx.stroke();
+
+		    ctx.font='36px Courier';
+  			ctx.lineWidth=4;
+  			ctx.fillStyle='red';
+  			ctx.fillText('VOCÊ PERDEU!',20,450);
+
+			alert ('Você perdeu!. A palavra escolhida era: '+ palavraEscolhida);
+		}
+
+		function desenhaPalpiteErrado(palpite_errado) {
+			
+			var posicaoPalpiteErradoX = 40;
+			var posicaoPalpiteErradoY = (50*num_palpites_errados);
+			
+			ctx.font='36px Courier';
+  			ctx.lineWidth=4;
+  			ctx.fillStyle='red';
+  			ctx.fillText(palpite_errado.toUpperCase(),posicaoPalpiteErradoX,posicaoPalpiteErradoY);
+
+		}
+
+		function validaPalpite(){
+			var palpite = document.getElementById('txt_Palpite').value.toUpperCase();
+			var palpites_errados = document.getElementById('txt_palpites_errados').value.toUpperCase();
+			var existe = false;
+			var palpite_errado = false;
+			
+			//Busca se existe a letra do palpite
+			if (palavraEscolhida.indexOf(palpite) < 0 ){//Não existe
+				palpite_errado = true;
+			}
+
+			if (palpite_errado 
+				&& palpites_errados.indexOf(palpite) == -1 )
+				{ //Se o palpite estiver errado e o palpite errado não estiver na lista
+					document.getElementById('txt_palpites_errados').value = palpite +'\n' +document.getElementById('txt_palpites_errados').value.toUpperCase();
+					num_palpites_errados++;
+					desenhaPalpiteErrado(palpite);
+			}
+			// Acumulando erros, será desenhado o boneco parte por parte
+			if (num_palpites_errados == 1) {desenhaCabeca(); }
+			if (num_palpites_errados == 2) {desenhaAbdome(); }
+			if (num_palpites_errados == 3) {desenhaPernaDireita(); desenhaPernaEsquerda();}
+			if (num_palpites_errados == 4) {desenhaBracoDireito(); desenhaBracoEsquerdo();}
+			if (num_palpites_errados == 5) {
+				desenhaMorreu();
+				document.getElementById('btn-novo-palpite').disabled = 'disabled';
+				document.getElementById('txt_Palpite').value = '';
+			}
+
+			//Se o palpite estiver certo
+			document.getElementById('txt_Palpite').value = '';
+			for (var i = 0; i < palavraEscolhida.length; i++){ 
+				if (palavraEscolhida[i] == palpite) { 
+					document.getElementById('txt_LetraCerta' + (i + 1)).value = palpite;
+				}
+
+			}
+
+			//Se completar os palpites
+			num_palpites_certos = 0;
+			for (var i = 0; i < palavraEscolhida.length; i++){ 
+				
+				if (document.getElementById('txt_LetraCerta' + (i + 1)).value != '') {//palpite certo
+					num_palpites_certos++;
+				}
+			}
+			
+			if (num_palpites_certos == palavraEscolhida.length) { //Acertou todas
+				alert ('Você venceu!. A palavra escolhida era: '+ palavraEscolhida);
+				document.getElementById('btn-novo-palpite').disabled = 'disabled';
+			}
+			document.getElementById('txt_Palpite').value = '';
+		}
+		function filtraTeclas(evento){ // Filtra o codigo Unicode de a-z e A-Z
+			
+			if ((evento.keyCode < 65 || evento.keyCode > 122) || (evento.keyCode > 90 && evento.keyCode < 97)){
+				evento.preventDefault();
+			}
+		}
+		function telaJogo(){ 
+			document.getElementById('pagina-inicial').style.display = "none";
+			document.getElementById('pagina-inicial-cadastro').style.display = "none";
+			document.getElementById('pagina-inicial-forca').style.display = "block";
+			if (palavras.length > 0) {
+				desenhaTabuleiro();
+			}
+			else {
+				alert('Não há palavras cadastradas para jogar! Cadastre uma nova.');
+				telaCadastroPalavras();
+			}
+		}
+		function voltaMenuPrincipal(){
+			document.getElementById('pagina-inicial').style.display = "block";
+			document.getElementById('pagina-inicial-cadastro').style.display = "none";
+			document.getElementById('pagina-inicial-forca').style.display = "none";
+		}
+		function telaCadastroPalavras(){
+			document.getElementById('pagina-inicial').style.display = "none";
+			document.getElementById('pagina-inicial-cadastro').style.display = "block";
+			document.getElementById('pagina-inicial-forca').style.display = "none";
+		}
+
+		document.getElementById('txt_Palpite').onkeydown = filtraTeclas;
+		document.getElementById('txt_PalavraCadastro').onkeydown = filtraTeclas;
+		document.getElementById('btn-comecar').onclick = telaJogo;
+		document.getElementById('btn-cadastrar').onclick = telaCadastroPalavras;
+		document.getElementById('btn-cadastrar-palavra').onclick = cadastraPalavra;
+		document.getElementById('btn-cancelar-cadastro').onclick = voltaMenuPrincipal;
+		document.getElementById('btn-novo-palpite').onclick = validaPalpite;
+		document.getElementById('btn-novo-jogo').onclick = desenhaTabuleiro;
+		document.getElementById('btn-cancelar').onclick = voltaMenuPrincipal;
+
+		voltaMenuPrincipal();
+	</script>
+</html>
