@@ -164,9 +164,9 @@
 
 		function desenhaBase(){
 			
-			//Base triangular
+			//Limpa o pincel para padrão preto
 			ctx.fillStyle='black';
-
+			//Base triangular
 		    ctx.beginPath();
 		    ctx.moveTo(20,400);
 		    ctx.lineTo(220,400);
@@ -285,6 +285,13 @@
 
 			alert ('Você perdeu!. A palavra escolhida era: '+ palavraEscolhida);
 		}
+		function desenhaVoceVenceu(){
+
+		    ctx.font='36px Courier';
+  			ctx.lineWidth=4;
+  			ctx.fillStyle='green';
+  			ctx.fillText('VOCÊ VENCEU!',20,450);
+		}
 
 		function desenhaPalpiteErrado(palpite_errado) {
 			
@@ -346,7 +353,8 @@
 			}
 			
 			if (num_palpites_certos == palavraEscolhida.length) { //Acertou todas
-				alert ('Você venceu!. A palavra escolhida era: '+ palavraEscolhida);
+				desenhaVoceVenceu();
+				//alert ('Você venceu!. A palavra escolhida era: '+ palavraEscolhida);
 				document.getElementById('btn-novo-palpite').disabled = 'disabled';
 			}
 			document.getElementById('txt_Palpite').value = '';
